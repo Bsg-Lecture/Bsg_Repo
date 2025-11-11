@@ -1,0 +1,47 @@
+# ev_client.py (Elektrikli Araç - Dürüst BMS Simülatörü)
+import socket
+import json
+import time
+
+# Saldırganın proxy adresine bağlanacak
+MITM_HOST = '127.0.0.1'
+MITM_PORT = 8000
+
+# Batarya durumunu simüle et
+mevcut_soc = 75  # %75'ten başla
+hedef_akım = 60     # Başlangıçta yüksek akımla şarj et
+
+try:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        print(f"[ARAÇ] Saldırganın proxy'sine bağlanılıyor ({MITM_HOST}:{MITM_PORT})...")
+        s.connect((MITM_HOST, MITM_PORT))
+        print("[ARAÇ] Bağlantı başarılı.")
+
+        while mevcut_soc <= 85: # Simülasyon %85'e kadar sürsün
+            
+            # Raporunuzdaki senaryo: SoC %80'e ulaştığında akımı düşür
+            if mevcut_soc >= 80:
+                print("\n[ARAÇ] Batarya %80'e ulaştı. Güvenlik için akım düşürme talebi.")
+                hedef_akım = 20 # Akımı 20A'e düşürme talebi
+            else:
+                print(f"\n[ARAÇ] Batarya SoC: %{mevcut_soc}. Hızlı şarj devam ediyor.")
+            
+            # Gönderilecek dürüst mesaj
+            mesaj = {
+                "soc": mevcut_soc,
+                "target_current": hedef_akım
+            }
+            
+            print(f"[ARAÇ] GÖNDERİLEN DÜRÜST MESAJ: {mesaj}")
+            s.sendall(json.dumps(mesaj).encode('utf-8'))
+            
+            # Simülasyon için SoC'yi artır ve bekle
+            mevcut_soc += 1 
+            time.sleep(2) # Her 2 saniyede bir SoC %1 artsın
+
+except ConnectionRefusedError:
+    print("[ARAÇ] HATA: Proxy'ye bağlanılamadı. mitm_proxy.py çalışıyor mu?")
+except Exception as e:
+    print(f"[ARAÇ] Bir hata oluştu: {e}")
+finally:
+    print("[ARAÇ] Simülasyon tamamlandı. Bağlantı kapatılıyor.")

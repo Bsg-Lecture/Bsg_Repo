@@ -1,0 +1,53 @@
+# evse_server.py (Şarj İstasyonu Simülatörü)
+import socket
+import json
+import time
+
+HOST = '127.0.0.1'  # Yerel sunucu
+PORT = 9005         # İstasyonun dinlediği port
+
+# Güvenlik eşiği: Batarya %80'in üzerindeyken yüksek akım gelirse tehlike.
+GUVENLI_SOC_ESIGI = 80
+TEHLIKELI_AKIM_ESIGI = 30 # 30A'dan fazlası tehlikeli kabul edilsin
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((HOST, PORT))
+    s.listen()
+    print(f"[ISTASYON] EVSE sunucusu {HOST}:{PORT} adresinde dinlemede...")
+    
+    conn, addr = s.accept()
+    with conn:
+        print(f"[ISTASYON] Bir bağlantı kabul edildi: {addr}")
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                print("[ISTASYON] Bağlantı kapandı.")
+                break
+            
+            try:
+                # Gelen veriyi JSON olarak işle
+                mesaj = json.loads(data.decode('utf-8'))
+                soc = mesaj.get('soc')
+                akım = mesaj.get('target_current')
+                
+                print(f"\n[ISTASYON] Mesaj alındı: SoC={soc}%, İstenen Akım={akım}A")
+
+                # Tehlike senaryosunu kontrol et
+                if soc < GUVENLI_SOC_ESIGI and akım > TEHLIKELI_AKIM_ESIGI:
+                    # Bu, MitM saldırganının gönderdiği sahte mesajın sonucudur
+                    # İstasyon, bataryanın %80'den az olduğunu sanıp yüksek akım basar
+                    print("---------------------------------------------------------")
+                    print(f"!!! TEHLİKE !!!: Düşük SoC (%{soc}) raporlandı ama yüksek akım ({akım}A) isteniyor.")
+                    print("!!! AŞIRI ŞARJ UYGULANIYOR. TERMAL KAÇAK RİSKİ!")
+                    print("---------------------------------------------------------")
+                elif soc >= GUVENLI_SOC_ESIGI:
+                    # Normalde olması gereken
+                    print(f"[ISTASYON] Batarya %{soc} dolu. Akım yavaşlatılıyor ({akım}A).")
+                else:
+                    print(f"[ISTASYON] Normal şarj işlemi devam ediyor (SoC: %{soc}).")
+
+            except json.JSONDecodeError:
+                print("[ISTASYON] Hata: Geçersiz JSON verisi alındı.")
+            except Exception as e:
+                print(f"[ISTASYON] Bir hata oluştu: {e}")
+                break
