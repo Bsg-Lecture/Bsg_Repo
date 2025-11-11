@@ -1,0 +1,84 @@
+# Attack Configuration Template
+# Configuration for charging profile poisoning attack simulation
+
+attack_config:
+  # Enable/disable attack mode
+  enabled: true
+  
+  # Attack strategy: aggressive, subtle, random, targeted
+  strategy: "aggressive"
+  
+  # Voltage manipulation settings
+  manipulations:
+    voltage:
+      enabled: true
+      deviation_percent: 15  # Increase voltage by 15%
+      target_range: [4.2, 4.35]  # Target voltage range (V)
+      
+    # Current manipulation settings
+    current:
+      enabled: true
+      deviation_percent: 25  # Increase current by 25%
+      target_range: [50, 80]  # Target current range (A)
+      
+    # Charging curve manipulation settings
+    charging_curve:
+      enabled: true
+      modification_type: "flatten"  # Options: flatten, steepen, invert
+      
+  # Randomization settings (for random strategy)
+  randomization:
+    enabled: false
+    seed: 42
+    deviation_range: [5, 30]  # Random deviation between 5-30%
+
+# Battery degradation model parameters
+battery_model:
+  initial_capacity_ah: 75.0
+  
+  degradation_params:
+    # Voltage stress parameters
+    optimal_voltage: 3.7  # Optimal cell voltage (V)
+    voltage_stress_coefficient: 0.5
+    
+    # Current stress parameters
+    optimal_c_rate: 0.5  # Optimal charging rate (C)
+    current_stress_coefficient: 0.3
+    
+    # SoC cycling parameters
+    optimal_soc_min: 20.0  # Optimal minimum SoC (%)
+    optimal_soc_max: 80.0  # Optimal maximum SoC (%)
+    soc_stress_coefficient: 0.2
+    
+    # Base degradation per cycle
+    base_degradation_per_cycle: 0.001  # 0.1% per 100 cycles
+
+# MITM Proxy settings
+# These should match your EmuOCPP server configuration (charging/server_config.yaml)
+proxy:
+  csms_host: "127.0.0.1"  # Should match server_host in server_config.yaml
+  csms_port: 9000         # Should match server_port in server_config.yaml
+  listen_port: 9001       # Port for charge point to connect to (proxy listens here)
+  ssl_enabled: false      # Set to true if using security_profile > 0
+  
+  # Optional: Reference to EmuOCPP configuration files
+  # server_config: "./charging/server_config.yaml"
+  # client_config: "./charging/client_config.yaml"
+  
+# Simulation settings
+simulation:
+  cycles: 1000  # Number of charging cycles to simulate
+  cycle_duration_hours: 2.0  # Average charging duration
+  mode: "attack"  # Simulation mode: baseline or attack
+  
+# Metrics and output settings
+metrics:
+  output_dir: "./output/attack"
+  export_csv: true
+  export_json: true
+  generate_plots: true
+  
+# Logging settings
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_file: "./logs/attack_simulation.log"

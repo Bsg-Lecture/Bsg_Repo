@@ -1,0 +1,31 @@
+detection_config:
+  enabled: true
+  method: "statistical"  # statistical, range_based, pattern_based
+  
+  # Statistical detection thresholds
+  thresholds:
+    voltage_percent: 10.0   # % deviation from baseline to trigger detection
+    current_percent: 15.0   # % deviation from baseline to trigger detection
+    power_percent: 12.0     # % deviation from baseline to trigger detection
+  
+  # Range-based detection (absolute limits)
+  ranges:
+    voltage_min: 3.0   # Minimum safe voltage (V)
+    voltage_max: 4.2   # Maximum safe voltage (V)
+    current_min: 0.0   # Minimum current (A)
+    current_max: 60.0  # Maximum safe current (A)
+  
+  # Pattern-based detection
+  pattern:
+    enable_curve_analysis: true
+    curve_smoothness_threshold: 0.3  # Threshold for curve irregularity detection
+  
+  # Baseline parameters (learned from normal operation)
+  # These should be updated based on actual baseline measurements
+  baseline:
+    voltage_mean: 3.7
+    voltage_std: 0.2
+    current_mean: 30.0
+    current_std: 5.0
+    power_mean: 7.0
+    power_std: 1.5

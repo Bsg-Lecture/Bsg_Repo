@@ -1,0 +1,66 @@
+# Subtle Attack Configuration
+# Minimal parameter deviations to evade detection while still causing degradation
+
+attack_config:
+  enabled: true
+  strategy: "subtle"
+  
+  manipulations:
+    # Minimal voltage manipulation
+    voltage:
+      enabled: true
+      deviation_percent: 5  # Only 5% increase
+      target_range: [4.2, 4.25]
+      
+    # Minimal current manipulation
+    current:
+      enabled: true
+      deviation_percent: 8  # Only 8% increase
+      target_range: [50, 60]
+      
+    # No curve manipulation (too obvious)
+    charging_curve:
+      enabled: false
+      modification_type: "flatten"
+      
+  randomization:
+    enabled: false
+
+# Battery model (same as default)
+battery_model:
+  initial_capacity_ah: 75.0
+  
+  degradation_params:
+    optimal_voltage: 3.7
+    voltage_stress_coefficient: 0.5
+    optimal_c_rate: 0.5
+    current_stress_coefficient: 0.3
+    optimal_soc_min: 20.0
+    optimal_soc_max: 80.0
+    soc_stress_coefficient: 0.2
+    base_degradation_per_cycle: 0.001
+
+# Proxy settings
+proxy:
+  csms_host: "127.0.0.1"
+  csms_port: 9000
+  listen_port: 9001
+  ssl_enabled: false
+
+# Simulation settings
+simulation:
+  cycles: 1000
+  cycle_duration_hours: 2.0
+  mode: "attack"
+
+# Metrics and output
+metrics:
+  output_dir: "./output/subtle_attack"
+  export_csv: true
+  export_json: true
+  generate_plots: true
+
+# Logging
+logging:
+  level: "INFO"
+  log_file: "./logs/subtle_attack.log"

@@ -1,0 +1,65 @@
+# Current Overstress Attack Configuration
+# Focuses on current manipulation to demonstrate current-induced degradation
+
+attack_config:
+  enabled: true
+  strategy: "aggressive"
+  
+  manipulations:
+    # Disable voltage manipulation
+    voltage:
+      enabled: false
+      deviation_percent: 0
+      target_range: [4.2, 4.35]
+      
+    # Current manipulation only
+    current:
+      enabled: true
+      deviation_percent: 30  # Aggressive 30% increase
+      target_range: [60, 90]  # Push to high current rates
+      
+    charging_curve:
+      enabled: false
+      modification_type: "flatten"
+      
+  randomization:
+    enabled: false
+
+# Battery model (same as default)
+battery_model:
+  initial_capacity_ah: 75.0
+  
+  degradation_params:
+    optimal_voltage: 3.7
+    voltage_stress_coefficient: 0.5
+    optimal_c_rate: 0.5
+    current_stress_coefficient: 0.3
+    optimal_soc_min: 20.0
+    optimal_soc_max: 80.0
+    soc_stress_coefficient: 0.2
+    base_degradation_per_cycle: 0.001
+
+# Proxy settings
+proxy:
+  csms_host: "127.0.0.1"
+  csms_port: 9000
+  listen_port: 9001
+  ssl_enabled: false
+
+# Simulation settings
+simulation:
+  cycles: 1000
+  cycle_duration_hours: 2.0
+  mode: "attack"
+
+# Metrics and output
+metrics:
+  output_dir: "./output/current_attack"
+  export_csv: true
+  export_json: true
+  generate_plots: true
+
+# Logging
+logging:
+  level: "INFO"
+  log_file: "./logs/current_attack.log"

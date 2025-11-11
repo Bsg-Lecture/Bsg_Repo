@@ -1,0 +1,62 @@
+clients:
+  client0:
+    SecProfile: 2
+    attempts: 2
+    dns: DNS1
+    name: CLI0
+    priority:
+    - 0
+    - 1
+    profiles:
+      0:
+        SP: 2
+        ocpp_version: OCPP201
+      1:
+        SP: 2
+        ocpp_version: OCPP201
+    url: ocpp-emulator.com
+    version: v2.0.1
+    wait: '30'
+dns:
+  dns1:
+    name: DNS1
+hosts:
+  H1:
+    name: Attacker
+links:
+- - CLI0
+  - SW0
+- - SW0
+  - R0
+- - server0
+  - SW1
+- - SW1
+  - R1
+- - R0
+  - DNS1
+- - R0
+  - R1
+- - Attacker
+  - R1
+routers:
+  router0:
+    name: R0
+  router1:
+    name: R1
+  routerT:
+    name: RT
+  routerTe:
+    name: RTe
+  routerTes:
+    name: RTes
+servers:
+  server0:
+    dns: DNS1
+    multiple: 2
+    name: server0
+    url: ocpp-emulator.com
+switches:
+  switch0:
+    name: SW0
+  switch1:
+    name: SW1

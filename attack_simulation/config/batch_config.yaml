@@ -1,0 +1,120 @@
+# Batch Configuration Template
+# Configuration for running multiple attack scenarios
+
+batch_config:
+  name: "Profile Poisoning Comparative Study"
+  output_dir: "./results/batch_001"
+  
+  # List of scenarios to execute
+  scenarios:
+    # Baseline scenario (no attack)
+    - name: "baseline"
+      attack_enabled: false
+      cycles: 1000
+      description: "Normal charging without manipulation"
+      
+    # Aggressive voltage attack
+    - name: "aggressive_voltage"
+      attack_enabled: true
+      strategy: "aggressive"
+      cycles: 1000
+      description: "Maximum voltage overstress attack"
+      manipulations:
+        voltage:
+          enabled: true
+          deviation_percent: 20
+        current:
+          enabled: false
+        charging_curve:
+          enabled: false
+          
+    # Aggressive current attack
+    - name: "aggressive_current"
+      attack_enabled: true
+      strategy: "aggressive"
+      cycles: 1000
+      description: "Maximum current overstress attack"
+      manipulations:
+        voltage:
+          enabled: false
+        current:
+          enabled: true
+          deviation_percent: 30
+        charging_curve:
+          enabled: false
+          
+    # Combined aggressive attack
+    - name: "aggressive_combined"
+      attack_enabled: true
+      strategy: "aggressive"
+      cycles: 1000
+      description: "Combined voltage and current attack"
+      manipulations:
+        voltage:
+          enabled: true
+          deviation_percent: 15
+        current:
+          enabled: true
+          deviation_percent: 25
+        charging_curve:
+          enabled: true
+          modification_type: "flatten"
+          
+    # Subtle attack (evasion)
+    - name: "subtle_combined"
+      attack_enabled: true
+      strategy: "subtle"
+      cycles: 1000
+      description: "Minimal deviations to evade detection"
+      manipulations:
+        voltage:
+          enabled: true
+          deviation_percent: 5
+        current:
+          enabled: true
+          deviation_percent: 10
+        charging_curve:
+          enabled: false
+          
+    # Random attack
+    - name: "random_attack"
+      attack_enabled: true
+      strategy: "random"
+      cycles: 1000
+      description: "Randomized parameter manipulations"
+      manipulations:
+        voltage:
+          enabled: true
+        current:
+          enabled: true
+        charging_curve:
+          enabled: true
+      randomization:
+        enabled: true
+        seed: 42
+        deviation_range: [5, 25]
+
+# Battery model settings (shared across scenarios)
+battery_model:
+  initial_capacity_ah: 75.0
+  reset_between_scenarios: true
+
+# Proxy settings (shared across scenarios)
+# These should match your EmuOCPP server configuration (charging/server_config.yaml)
+proxy:
+  csms_host: "127.0.0.1"  # Should match server_host in server_config.yaml
+  csms_port: 9000         # Should match server_port in server_config.yaml
+  listen_port: 9001       # Port for charge point to connect to (proxy listens here)
+  ssl_enabled: false      # Set to true if using security_profile > 0
+
+# Output settings
+output:
+  generate_comparison_report: true
+  generate_plots: true
+  export_format: ["csv", "json"]
+  
+# Execution settings
+execution:
+  parallel: false  # Run scenarios sequentially
+  max_workers: 1
+  continue_on_error: true

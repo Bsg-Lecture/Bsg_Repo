@@ -1,0 +1,4 @@
+2025-11-11 00:24:44,031 - __main__ - INFO - Attack Simulator v1.0.0 starting...
+2025-11-11 00:24:44,031 - __main__ - INFO - ============================================================
+2025-11-11 00:24:44,031 - __main__ - ERROR - Either --config or --batch must be specified
+2025-11-11 00:24:44,031 - __main__ - INFO - Use --help for usage information
