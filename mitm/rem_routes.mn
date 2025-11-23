@@ -1,0 +1,16 @@
+ip6tables -t nat -D PREROUTING -p tcp --dport 9001 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9001 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9000 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9000 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9002 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9002 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9003 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9003 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9004 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9004 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9005 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9005 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9006 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9006 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --dport 9007 -j REDIRECT --to-port 8080
+ip6tables -t nat -D PREROUTING -p tcp --sport 9007 -j REDIRECT --to-port 8080
